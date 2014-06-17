@@ -18,4 +18,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency 'omniauth', '~> 1.0'
+  gem.add_dependency 'omniauth-oauth2', '~> 1.1'
 end
