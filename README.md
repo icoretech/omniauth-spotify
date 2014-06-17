@@ -47,7 +47,7 @@ Here's an example auth hash, available in `request.env['omniauth.auth']`:
   :provider => "spotify",
   :uid => "1111111111",
   :info => {
-    :name => nil,
+    :name => "Claudio Poli",
     :email => "claudio@icorete.ch"
   },
   :credentials => {
