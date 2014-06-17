@@ -29,10 +29,9 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
-Or with Devise:
+Or with Devise in `config/initializers/devise.rb`:
 
-```
-# devise.rb
+```ruby
 config.omniauth :spotify, 'app_id', 'app_secret', scope: 'playlist-read-private user-read-private user-read-email'
 ```
 
