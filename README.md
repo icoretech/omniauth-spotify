@@ -29,6 +29,9 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
+Please replace the example `scope` provided with your own.
+Read more about scopes here: https://developer.spotify.com/web-api/using-scopes/
+
 Or with Devise in `config/initializers/devise.rb`:
 
 ```ruby
