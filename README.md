@@ -1,6 +1,6 @@
 # Spotify OmniAuth Strategy
 
-This gem provides a simple way to authenticate to Spotify using OmniAuth with OAuth2.
+This gem provides a simple way to authenticate to Spotify Web API using OmniAuth with OAuth2.
 
 ## Installation
 
@@ -81,6 +81,11 @@ Here's an example auth hash, available in `request.env['omniauth.auth']`:
 }
 
 ```
+
+## More
+
+This gem is brought to you by the [AudioBox](https://audiobox.fm) guys.
+Enjoy!
 
 ## Contributing
 
