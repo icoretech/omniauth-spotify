@@ -42,13 +42,24 @@ config.omniauth :spotify, 'app_id', 'app_secret', scope: 'playlist-read-private 
 
 Here's an example auth hash, available in `request.env['omniauth.auth']`:
 
+Some of this fields depend on what scopes you ask, namely
+
+* `user-read-email` affects the presence of the `email` field
+* `user-read-private` affects the value of `name` (if the scope is
+  missing it will reflect `username`) and the presence of
+ `image`
+
 ```ruby
 {
   :provider => "spotify",
   :uid => "1111111111",
   :info => {
     :name => "Claudio Poli",
-    :email => "claudio@icorete.ch"
+    :nickname => 'SomeName',
+    :email => "claudio@icorete.ch",
+    :urls => {:spotify => "https://open.spotify.com/user/1111111111"},
+    :image => 'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfp1/t1.0-1/s320x320/301234_1962753760624_625151598_n.jpg'
+
   },
   :credentials => {
     :token => "xxxx",
