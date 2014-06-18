@@ -23,8 +23,13 @@ module OmniAuth
 
       info do
         {
-          :name => raw_info['display_name'],
-          :email => raw_info['email']
+          # display_name may be empty if user does not request
+          #  'user-read-private'
+          :name => raw_info['display_name'] || raw_info['id'],
+          :nickname => raw_info['id'],
+          :email => raw_info['email'],
+          :urls => raw_info['external_urls'],
+          :image => image_url
         }
       end
 
@@ -32,6 +37,14 @@ module OmniAuth
         {
           'raw_info' => raw_info
         }
+      end
+
+      def image_url
+        if images = raw_info['images']
+          if first = images.first
+            first['url']
+          end
+        end
       end
 
       def raw_info
