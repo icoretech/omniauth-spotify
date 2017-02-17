@@ -83,9 +83,9 @@ the `token`, `refresh_token`, `expires_at`, and `expires` methods.
 
 The username/nickname is also available via a call to `request.env['omniauth.auth'].uid`.
 
-** Unless the `user-read-private` scope is included, the `birthdate`, `country`, `image`, and `product` fields may be `nil`,
-   and the `name` field will be set to the username/nickname instead of the display name.
-** The email field will be nil if the 'user-read-email' scope isn't included.
+  * Unless the `user-read-private` scope is included, the `birthdate`, `country`, `image`, and `product` fields may be `nil`,
+    and the `name` field will be set to the username/nickname instead of the display name.
+  * The email field will be nil if the 'user-read-email' scope isn't included.
 
 
 * The raw response to the `me` endpoint call is also available in  `request.env['omniauth.auth'].extra['raw_info']`. e.g.
