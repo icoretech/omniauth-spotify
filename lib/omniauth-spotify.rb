@@ -1,10 +1,13 @@
 require 'omniauth/strategies/oauth2'
+require 'date'
 
 module OmniAuth
   module Strategies
     class Spotify < OmniAuth::Strategies::OAuth2
       # Give your strategy a name.
       option :name, 'spotify'
+      
+      FORCE_APPROVAL_KEY = 'ommiauth_spotify_force_approval?'.freeze
 
       # This is where you pass the options you would pass when
       # initializing your consumer from the OAuth gem.
@@ -23,13 +26,19 @@ module OmniAuth
 
       info do
         {
-          # display_name may be empty if user does not request
-          #  'user-read-private'
+          # Unless the 'user-read-private' scope is included, the birthdate, country, image, and product fields may be nil,
+          # and the name field will be set to the username/nickname instead of the display name.
+          # The email field will be nil if the 'user-read-email' scope isn't included.
+          #
           :name => raw_info['display_name'] || raw_info['id'],
           :nickname => raw_info['id'],
           :email => raw_info['email'],
           :urls => raw_info['external_urls'],
-          :image => image_url
+          :image => image_url,
+          :birthdate => raw_info['birthdate'] && Date.parse(raw_info['birthdate']),
+          :country_code => raw_info['country'],
+          :product => raw_info['product'],
+          :follower_count => raw_info['followers']['total']
         }
       end
 
@@ -49,6 +58,10 @@ module OmniAuth
 
       def raw_info
         @raw_info ||= access_token.get('me').parsed
+      end
+      
+      def authorize_params
+        super.tap { |params| params[:show_dialog] = true if session.delete(FORCE_APPROVAL_KEY) || defined?(Rails) && session[:flash]['flashes'][FORCE_APPROVAL_KEY] } 
       end
 
       def callback_url
