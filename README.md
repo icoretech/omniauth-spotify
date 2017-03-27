@@ -51,6 +51,11 @@ To force a permission dialog being shown to the user, which also makes it possib
 set either `request.env['rack.session'][:ommiauth_spotify_force_approval?]` or `flash[:ommiauth_spotify_force_approval?]` (Rails apps only)
 to a truthy value on the request that performs the Omniauth redirection. 
 
+Alternately, you can pass `show_dialog=true` when you redirect to your spotify auth URL if you prefer not to use the session. 
+```
+http://localhost:3000/auth/spotify?show_dialog=true
+```
+
 ## Auth Hash Schema
 
 * Authorization data is available in the `request.env['omniauth.auth'].credentials` -- a hash that also responds to
