@@ -69,6 +69,15 @@ module OmniAuth
         end
       end
 
+      def request_phase
+        %w[show_dialog].each do |v|
+          if request.params[v]
+            options[:authorize_params][v.to_sym] = request.params[v]
+          end
+        end
+        super
+      end
+
       def callback_url
         if @authorization_code_from_signed_request_in_cookie
           ''
