@@ -61,7 +61,12 @@ module OmniAuth
       end
       
       def authorize_params
-        super.tap { |params| params[:show_dialog] = true if session.delete(FORCE_APPROVAL_KEY) || defined?(Rails) && session[:flash]['flashes'][FORCE_APPROVAL_KEY] } 
+        super.tap do |params|
+          if session.delete(FORCE_APPROVAL_KEY) ||
+             (session[:flash] && session[:flash]['flashes'] && session[:flash]['flashes'][FORCE_APPROVAL_KEY])
+            params[:show_dialog] = true
+          end
+        end
       end
 
       def callback_url
