@@ -24,10 +24,12 @@ Usage of the gem is very similar to other OmniAuth strategies.
 You'll need to add your app credentials to `config/initializers/omniauth.rb`:
 
 ```ruby
-keys = Rails.application.secrets
-
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :spotify, keys.spotify['client_id'], keys.spotify['client_secret'], scope: 'playlist-read-private user-read-private user-read-email'
+  provider :spotify, Rails.application.credentials.spotify[:client_id], Rails.application.credentials.spotify[:client_secret], scope: %w(
+    playlist-read-private
+    user-read-private
+    user-read-email
+  ).join(' ')
 end
 ```
 
@@ -37,9 +39,11 @@ Read more about scopes here: https://developer.spotify.com/web-api/using-scopes/
 Or with Devise in `config/initializers/devise.rb`:
 
 ```ruby
-keys = Rails.application.secrets
-
-config.omniauth :spotify, keys.spotify['client_id'], keys.spotify['client_secret'], scope: 'playlist-read-private user-read-private user-read-email'
+config.omniauth :spotify, Rails.application.credentials.spotify[:client_id], Rails.application.credentials.spotify[:client_secret], scope: %w(
+  playlist-read-private
+  user-read-private
+  user-read-email
+).join(' ')
 ```
 
 ## Forcing a Permission-Request Dialog
