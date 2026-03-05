@@ -1,138 +1,125 @@
-# Spotify OmniAuth Strategy
+# OmniAuth Spotify Strategy
 
-This gem provides a simple way to authenticate to the Spotify Web API using OmniAuth with OAuth2.
+[![Test](https://github.com/icoretech/omniauth-spotify/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/icoretech/omniauth-spotify/actions/workflows/test.yml?query=branch%3Amain)
+[![Gem Version](https://img.shields.io/gem/v/omniauth-spotify.svg)](https://rubygems.org/gems/omniauth-spotify)
+
+`omniauth-spotify` provides a Spotify OAuth2 strategy for OmniAuth.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'omniauth-spotify'
+```ruby
+gem 'omniauth-spotify'
+```
 
-And then execute:
+Then run:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install omniauth-spotify
+```bash
+bundle install
+```
 
 ## Usage
 
-You'll need to register an app on Spotify, you can do this here - https://developer.spotify.com/my-applications/#!/applications
-
-Usage of the gem is very similar to other OmniAuth strategies.
-You'll need to add your app credentials to `config/initializers/omniauth.rb`:
+Configure OmniAuth in your Rack/Rails app:
 
 ```ruby
-keys = Rails.application.secrets
-
 Rails.application.config.middleware.use OmniAuth::Builder do
-  provider :spotify, keys.spotify['client_id'], keys.spotify['client_secret'], scope: 'playlist-read-private user-read-private user-read-email'
+  provider :spotify, ENV.fetch('SPOTIFY_CLIENT_ID'), ENV.fetch('SPOTIFY_CLIENT_SECRET'),
+           scope: 'user-read-email user-read-private'
 end
 ```
 
-Please replace the example `scope` provided with your own.
-Read more about scopes here: https://developer.spotify.com/web-api/using-scopes/
+## Forcing a Permission Dialog
 
-Or with Devise in `config/initializers/devise.rb`:
+Spotify may skip the permission dialog when the user already granted access. To force it:
 
-```ruby
-keys = Rails.application.secrets
+- set `request.env['rack.session']['omniauth_spotify_force_approval?'] = true`, or
+- pass `show_dialog=true` on the auth request URL.
 
-config.omniauth :spotify, keys.spotify['client_id'], keys.spotify['client_secret'], scope: 'playlist-read-private user-read-private user-read-email'
-```
+Backward compatibility is preserved for the historical misspelled key:
+`ommiauth_spotify_force_approval?`.
 
-## Forcing a Permission-Request Dialog
+## Auth Hash
 
-If a user has given permission for an app to access a scope, that permission won't be asked again unless the user revokes access.
-In these cases, authorization sequences proceed without user interation.
+Example payload from `request.env['omniauth.auth']` (real shape, anonymized):
 
-To force a permission dialog being shown to the user, which also makes it possible for them to switch Spotify accounts,
-set either `request.env['rack.session'][:ommiauth_spotify_force_approval?]` or `flash[:ommiauth_spotify_force_approval?]` (Rails apps only)
-to a truthy value on the request that performs the Omniauth redirection. 
-
-Alternately, you can pass `show_dialog=true` when you redirect to your spotify auth URL if you prefer not to use the session. 
-```
-http://localhost:3000/auth/spotify?show_dialog=true
-```
-
-## Auth Hash Schema
-
-* Authorization data is available in the `request.env['omniauth.auth'].credentials` -- a hash that also responds to
-the `token`, `refresh_token`, `expires_at`, and `expires` methods.
-
-```ruby
- {
-    "token" => "xxxx",
-    "refresh_token" => "xxxx",
-    "expires_at" => 1403021232,
-    "expires" => true
- }
-```
-
-* Information about the authorized Spotify user is available in the `request.env['omniauth.auth'].info` hash. e.g.
-
-```ruby
- {
-    :name => "Claudio Poli",
-    :nickname => "SomeName",
-    :email => "claudio@icorete.ch",
-    :urls => {"spotify" => "https://open.spotify.com/user/1111111111"},
-    :image => "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfp1/t1.0-1/s320x320/301234_1962753760624_625151598_n.jpg",
-    :birthdate => Mon, 01 Mar 1993, # Date class
-    :country_code => "IT",
-    :product => "open",
-    :follower_count => 10
-  }
-```
-
-The username/nickname is also available via a call to `request.env['omniauth.auth'].uid`.
-
-  * Unless the `user-read-private` scope is included, the `birthdate`, `country`, `image`, and `product` fields may be `nil`,
-    and the `name` field will be set to the username/nickname instead of the display name.
-  * The email field will be nil if the 'user-read-email' scope isn't included.
-
-
-* The raw response to the `me` endpoint call is also available in  `request.env['omniauth.auth'].extra['raw_info']`. e.g.
-
-```ruby
+```json
 {
-  "country" => "IT",
-  "display_name" => "Claudio Poli",
-  "birthdate" => "1993-03-01",
-  "email" => "claudio@icorete.ch",
-  "external_urls" => {
-    "spotify" => "https://open.spotify.com/user/1111111111"
+  "uid": "sampleuser",
+  "info": {
+    "name": "Sample User",
+    "nickname": "sampleuser",
+    "email": "sample@example.test",
+    "urls": {
+      "spotify": "https://open.spotify.com/user/sampleuser"
+    },
+    "image": "https://i.scdn.co/image/sample-image-id",
+    "birthdate": "1993-03-01",
+    "country_code": "IT",
+    "product": "open",
+    "follower_count": 10
   },
-  "followers" => {
-    "href" => nil,
-    "total" => 10
+  "credentials": {
+    "token": "sample-access-token",
+    "refresh_token": "sample-refresh-token",
+    "expires_at": 1710000000,
+    "expires": true
   },
-  "href" => "https://api.spotify.com/v1/users/1111111111",
-  "id" => "1111111111",
-  "images" => [
-    {
-      "height" => nil,
-      "url" => "https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfp1/t1.0-1/s320x320/301234_1962753760624_625151598_n.jpg",
-      "width" => nil
+  "extra": {
+    "raw_info": {
+      "country": "IT",
+      "display_name": "Sample User",
+      "birthdate": "1993-03-01",
+      "email": "sample@example.test",
+      "external_urls": {
+        "spotify": "https://open.spotify.com/user/sampleuser"
+      },
+      "followers": {
+        "href": null,
+        "total": 10
+      },
+      "href": "https://api.spotify.com/v1/users/sampleuser",
+      "id": "sampleuser",
+      "images": [
+        {
+          "height": null,
+          "url": "https://i.scdn.co/image/sample-image-id",
+          "width": null
+        }
+      ],
+      "product": "open",
+      "type": "user",
+      "uri": "spotify:user:sampleuser"
     }
-  ],
-  "product" => "open",
-  "type" => "user",
-  "uri" => "spotify:user:1111111111"
+  }
 }
-
 ```
 
-## More
+## Development
 
-This gem is brought to you by the [AudioBox](https://audiobox.fm) guys.
-Enjoy!
+```bash
+bundle install
+bundle exec rake
+```
 
-## Contributing
+Run Rails integration tests with an explicit Rails version:
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+```bash
+RAILS_VERSION='~> 8.1.0' bundle install
+RAILS_VERSION='~> 8.1.0' bundle exec rake test_rails_integration
+```
+
+## Compatibility
+
+- Ruby: `>= 3.2` (tested on `3.2`, `3.3`, `3.4`, `4.0`)
+- `omniauth-oauth2`: `>= 1.8`, `< 1.9`
+- Rails integration lanes: `~> 7.1.0`, `~> 7.2.0`, `~> 8.0.0`, `~> 8.1.0`
+
+## Release
+
+Tag releases as `vX.Y.Z`; GitHub Actions publishes the gem to RubyGems.
+
+## License
+
+MIT
