@@ -128,7 +128,7 @@ RAILS_VERSION='~> 8.1.0' bundle exec rake test_rails_integration
 ## Compatibility
 
 - Ruby: `>= 3.2` (tested on `3.2`, `3.3`, `3.4`, `4.0`)
-- `omniauth-oauth2`: `>= 1.8`, `< 1.9`
+- `omniauth-oauth2`: `>= 1.8`, `< 2.0`
 - Rails integration lanes: `~> 7.1.0`, `~> 7.2.0`, `~> 8.0.0`, `~> 8.1.0`
 
 ## Release
