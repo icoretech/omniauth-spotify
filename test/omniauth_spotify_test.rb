@@ -88,6 +88,29 @@ class OmniauthSpotifyTest < Minitest::Test
     assert_nil strategy.info[:birthdate]
   end
 
+  def test_credentials_include_refresh_token_even_when_token_does_not_expire
+    strategy = build_strategy
+    token = FakeCredentialAccessToken.new(
+      token: 'access-token',
+      refresh_token: 'refresh-token',
+      expires_at: nil,
+      expires: false,
+      params: { 'scope' => 'user-read-email user-read-private' }
+    )
+
+    strategy.define_singleton_method(:access_token) { token }
+
+    assert_equal(
+      {
+        'token' => 'access-token',
+        'refresh_token' => 'refresh-token',
+        'expires' => false,
+        'scope' => 'user-read-email user-read-private'
+      },
+      strategy.credentials
+    )
+  end
+
   def test_raw_info_calls_me_endpoint_and_memoizes
     strategy = build_strategy
     token = FakeAccessToken.new({ 'id' => 'sampleuser' })
@@ -215,6 +238,26 @@ class OmniauthSpotifyTest < Minitest::Test
     def get(path)
       @calls << { path: path }
       Struct.new(:parsed).new(@parsed_payload)
+    end
+  end
+
+  class FakeCredentialAccessToken
+    attr_reader :token, :refresh_token, :expires_at, :params
+
+    def initialize(token:, refresh_token:, expires_at:, expires:, params:)
+      @token = token
+      @refresh_token = refresh_token
+      @expires_at = expires_at
+      @expires = expires
+      @params = params
+    end
+
+    def expires?
+      @expires
+    end
+
+    def [](key)
+      { 'scope' => @params['scope'] }[key]
     end
   end
 end

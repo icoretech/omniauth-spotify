@@ -30,6 +30,17 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
+## Provider App Setup
+
+- Spotify developer dashboard: <https://developer.spotify.com/dashboard>
+- OAuth scopes reference: <https://developer.spotify.com/documentation/web-api/concepts/scopes>
+- Register callback URL (example): `https://your-app.example.com/auth/spotify/callback`
+
+## Options
+
+- `scope`
+- `show_dialog`
+
 ## Forcing a Permission Dialog
 
 Spotify may skip the permission dialog when the user already granted access. To force it:
@@ -62,7 +73,8 @@ Example payload from `request.env['omniauth.auth']` (real shape, anonymized):
     "token": "sample-access-token",
     "refresh_token": "sample-refresh-token",
     "expires_at": 1710000000,
-    "expires": true
+    "expires": true,
+    "scope": "user-read-email user-read-private"
   },
   "extra": {
     "raw_info": {
@@ -106,6 +118,12 @@ Run Rails integration tests with an explicit Rails version:
 RAILS_VERSION='~> 8.1.0' bundle install
 RAILS_VERSION='~> 8.1.0' bundle exec rake test_rails_integration
 ```
+
+## Test Structure
+
+- `test/omniauth_spotify_test.rb`: strategy/unit behavior
+- `test/rails_integration_test.rb`: full Rack/Rails request+callback flow
+- `test/test_helper.rb`: shared test bootstrap
 
 ## Compatibility
 
