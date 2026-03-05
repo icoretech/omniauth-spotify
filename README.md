@@ -46,19 +46,17 @@ Example payload from `request.env['omniauth.auth']` (real shape, anonymized):
 
 ```json
 {
-  "uid": "sampleuser",
+  "uid": "1234567890",
   "info": {
-    "name": "Sample User",
-    "nickname": "sampleuser",
-    "email": "sample@example.test",
+    "name": "1234567890",
+    "nickname": "1234567890",
+    "email": "user@example.test",
     "urls": {
-      "spotify": "https://open.spotify.com/user/sampleuser"
+      "spotify": "https://open.spotify.com/user/1234567890"
     },
-    "image": "https://i.scdn.co/image/sample-image-id",
-    "birthdate": "1993-03-01",
     "country_code": "IT",
-    "product": "open",
-    "follower_count": 10
+    "product": "free",
+    "follower_count": 24
   },
   "credentials": {
     "token": "sample-access-token",
@@ -69,32 +67,31 @@ Example payload from `request.env['omniauth.auth']` (real shape, anonymized):
   "extra": {
     "raw_info": {
       "country": "IT",
-      "display_name": "Sample User",
-      "birthdate": "1993-03-01",
-      "email": "sample@example.test",
+      "display_name": "1234567890",
+      "email": "user@example.test",
+      "explicit_content": {
+        "filter_enabled": false,
+        "filter_locked": false
+      },
       "external_urls": {
-        "spotify": "https://open.spotify.com/user/sampleuser"
+        "spotify": "https://open.spotify.com/user/1234567890"
       },
       "followers": {
         "href": null,
-        "total": 10
+        "total": 24
       },
-      "href": "https://api.spotify.com/v1/users/sampleuser",
-      "id": "sampleuser",
-      "images": [
-        {
-          "height": null,
-          "url": "https://i.scdn.co/image/sample-image-id",
-          "width": null
-        }
-      ],
-      "product": "open",
+      "href": "https://api.spotify.com/v1/users/1234567890",
+      "id": "1234567890",
+      "images": [],
+      "product": "free",
       "type": "user",
-      "uri": "spotify:user:sampleuser"
+      "uri": "spotify:user:1234567890"
     }
   }
 }
 ```
+
+`info.image` and `info.birthdate` are included only when Spotify returns those fields.
 
 ## Development
 

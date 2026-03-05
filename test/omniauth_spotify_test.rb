@@ -51,6 +51,36 @@ class OmniauthSpotifyTest < Minitest::Test
     assert_equal({ 'raw_info' => payload }, strategy.extra)
   end
 
+  def test_info_handles_sparse_real_world_payload_without_optional_fields
+    strategy = build_strategy
+    payload = {
+      'id' => '1234567890',
+      'display_name' => '1234567890',
+      'email' => 'user@example.test',
+      'external_urls' => { 'spotify' => 'https://open.spotify.com/user/1234567890' },
+      'images' => [],
+      'country' => 'IT',
+      'product' => 'free',
+      'followers' => { 'total' => 24 }
+    }
+
+    strategy.instance_variable_set(:@raw_info, payload)
+
+    assert_equal(
+      {
+        name: '1234567890',
+        nickname: '1234567890',
+        email: 'user@example.test',
+        urls: { 'spotify' => 'https://open.spotify.com/user/1234567890' },
+        country_code: 'IT',
+        product: 'free',
+        follower_count: 24
+      },
+      strategy.info
+    )
+    assert_equal({ 'raw_info' => payload }, strategy.extra)
+  end
+
   def test_birthdate_parsing_is_nil_when_value_is_invalid
     strategy = build_strategy
     strategy.instance_variable_set(:@raw_info, { 'id' => 'sampleuser', 'birthdate' => 'not-a-date' })
