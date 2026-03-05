@@ -1,7 +1,7 @@
 # OmniAuth Spotify Strategy
 
 [![Test](https://github.com/icoretech/omniauth-spotify/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/icoretech/omniauth-spotify/actions/workflows/test.yml?query=branch%3Amain)
-[![Gem Version](https://img.shields.io/gem/v/omniauth-spotify.svg)](https://rubygems.org/gems/omniauth-spotify)
+[![Gem Version](https://badge.fury.io/rb/omniauth-spotify.svg)](https://badge.fury.io/rb/omniauth-spotify)
 
 `omniauth-spotify` provides a Spotify OAuth2 strategy for OmniAuth.
 
