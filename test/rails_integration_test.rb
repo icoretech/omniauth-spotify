@@ -1,53 +1,53 @@
 # frozen_string_literal: true
 
-require_relative 'test_helper'
+require_relative "test_helper"
 
-require 'action_controller/railtie'
-require 'cgi'
-require 'json'
-require 'logger'
-require 'rack/test'
-require 'rails'
-require 'uri'
-require 'webmock/minitest'
+require "action_controller/railtie"
+require "cgi"
+require "json"
+require "logger"
+require "rack/test"
+require "rails"
+require "uri"
+require "webmock/minitest"
 
 class RailsIntegrationSessionsController < ActionController::Base
   def create
-    auth = request.env.fetch('omniauth.auth')
+    auth = request.env.fetch("omniauth.auth")
     render json: {
-      uid: auth['uid'],
-      name: auth.dig('info', 'name'),
-      email: auth.dig('info', 'email'),
-      credentials: auth['credentials']
+      uid: auth["uid"],
+      name: auth.dig("info", "name"),
+      email: auth.dig("info", "email"),
+      credentials: auth["credentials"]
     }
   end
 
   def failure
-    render json: { error: params[:message] }, status: :unauthorized
+    render json: {error: params[:message]}, status: :unauthorized
   end
 end
 
 class RailsIntegrationApp < Rails::Application
-  config.root = File.expand_path('..', __dir__)
+  config.root = File.expand_path("..", __dir__)
   config.eager_load = false
-  config.secret_key_base = 'spotify-rails-integration-test-secret-key'
+  config.secret_key_base = "spotify-rails-integration-test-secret-key"
   config.active_support.cache_format_version = 7.1 if config.active_support.respond_to?(:cache_format_version=)
 
   if config.active_support.respond_to?(:to_time_preserves_timezone=) &&
-     Rails.gem_version < Gem::Version.new('8.1.0')
+      Rails.gem_version < Gem::Version.new("8.1.0")
     config.active_support.to_time_preserves_timezone = :zone
   end
   config.hosts.clear
-  config.hosts << 'example.org'
+  config.hosts << "example.org"
   config.logger = Logger.new(nil)
 
   config.middleware.use OmniAuth::Builder do
-    provider :spotify, 'client-id', 'client-secret', scope: 'user-read-email user-read-private'
+    provider :spotify, "client-id", "client-secret", scope: "user-read-email user-read-private"
   end
 
   routes.append do
-    match '/auth/:provider/callback', to: 'rails_integration_sessions#create', via: %i[get post]
-    get '/auth/failure', to: 'rails_integration_sessions#failure'
+    match "/auth/:provider/callback", to: "rails_integration_sessions#create", via: %i[get post]
+    get "/auth/failure", to: "rails_integration_sessions#failure"
   end
 end
 
@@ -83,65 +83,65 @@ class RailsIntegrationTest < Minitest::Test
     stub_spotify_token_exchange
     stub_spotify_me
 
-    post '/auth/spotify'
+    post "/auth/spotify"
 
     assert_equal 302, last_response.status
 
-    authorize_uri = URI.parse(last_response['Location'])
+    authorize_uri = URI.parse(last_response["Location"])
 
-    assert_equal 'accounts.spotify.com', authorize_uri.host
-    state = CGI.parse(authorize_uri.query).fetch('state').first
+    assert_equal "accounts.spotify.com", authorize_uri.host
+    state = CGI.parse(authorize_uri.query).fetch("state").first
 
-    get '/auth/spotify/callback', { code: 'oauth-test-code', state: state }
+    get "/auth/spotify/callback", {code: "oauth-test-code", state: state}
 
     assert_equal 200, last_response.status
 
     payload = JSON.parse(last_response.body)
 
-    assert_equal 'sampleuser', payload['uid']
-    assert_equal 'Sample User', payload['name']
-    assert_equal 'sample@example.test', payload['email']
-    assert_equal 'access-token', payload.dig('credentials', 'token')
-    assert_equal 'refresh-token', payload.dig('credentials', 'refresh_token')
-    assert_equal 'user-read-email user-read-private', payload.dig('credentials', 'scope')
-    assert(payload.dig('credentials', 'expires'))
+    assert_equal "sampleuser", payload["uid"]
+    assert_equal "Sample User", payload["name"]
+    assert_equal "sample@example.test", payload["email"]
+    assert_equal "access-token", payload.dig("credentials", "token")
+    assert_equal "refresh-token", payload.dig("credentials", "refresh_token")
+    assert_equal "user-read-email user-read-private", payload.dig("credentials", "scope")
+    assert(payload.dig("credentials", "expires"))
 
-    assert_requested :post, 'https://accounts.spotify.com/api/token', times: 1
-    assert_requested :get, 'https://api.spotify.com/v1/me', times: 1
+    assert_requested :post, "https://accounts.spotify.com/api/token", times: 1
+    assert_requested :get, "https://api.spotify.com/v1/me", times: 1
   end
 
   private
 
   def stub_spotify_token_exchange
-    stub_request(:post, 'https://accounts.spotify.com/api/token').to_return(
+    stub_request(:post, "https://accounts.spotify.com/api/token").to_return(
       status: 200,
-      headers: { 'Content-Type' => 'application/json' },
+      headers: {"Content-Type" => "application/json"},
       body: {
-        access_token: 'access-token',
-        refresh_token: 'refresh-token',
-        scope: 'user-read-email user-read-private',
-        token_type: 'bearer',
+        access_token: "access-token",
+        refresh_token: "refresh-token",
+        scope: "user-read-email user-read-private",
+        token_type: "bearer",
         expires_in: 3600
       }.to_json
     )
   end
 
   def stub_spotify_me
-    stub_request(:get, 'https://api.spotify.com/v1/me').to_return(
+    stub_request(:get, "https://api.spotify.com/v1/me").to_return(
       status: 200,
-      headers: { 'Content-Type' => 'application/json' },
+      headers: {"Content-Type" => "application/json"},
       body: {
-        id: 'sampleuser',
-        display_name: 'Sample User',
-        email: 'sample@example.test',
+        id: "sampleuser",
+        display_name: "Sample User",
+        email: "sample@example.test",
         external_urls: {
-          spotify: 'https://open.spotify.com/user/sampleuser'
+          spotify: "https://open.spotify.com/user/sampleuser"
         },
-        images: [{ url: 'https://i.scdn.co/image/sample-image-id' }],
-        birthdate: '1993-03-01',
-        country: 'IT',
-        product: 'open',
-        followers: { total: 10 }
+        images: [{url: "https://i.scdn.co/image/sample-image-id"}],
+        birthdate: "1993-03-01",
+        country: "IT",
+        product: "open",
+        followers: {total: 10}
       }.to_json
     )
   end
