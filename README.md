@@ -35,6 +35,9 @@ end
 - Spotify developer dashboard: <https://developer.spotify.com/dashboard>
 - OAuth scopes reference: <https://developer.spotify.com/documentation/web-api/concepts/scopes>
 - Register callback URL (example): `https://your-app.example.com/auth/spotify/callback`
+- The redirect URI must match exactly in Spotify's dashboard.
+- Spotify requires HTTPS redirect URIs except for loopback IP literals such as
+  `http://127.0.0.1:3000/auth/spotify/callback`; `localhost` is not accepted.
 
 ## Options
 
@@ -103,7 +106,38 @@ Example payload from `request.env['omniauth.auth']` (real shape, anonymized):
 }
 ```
 
-`info.image` and `info.birthdate` are included only when Spotify returns those fields.
+`info.email`, `info.image`, `info.birthdate`, `info.country_code`,
+`info.product`, and `info.follower_count` are included only when Spotify
+returns those fields.
+
+## Spotify API Changelog Notes
+
+The strategy still uses Spotify's authorization-code flow and
+`GET https://api.spotify.com/v1/me` for the current user profile.
+
+Recent changelog items reviewed:
+
+- February 2026 Development Mode changes: Spotify deprecated `country`,
+  `email`, `explicit_content`, `followers`, and `product` and may omit them
+  from `GET /me` user payloads for affected development-mode apps. The gem
+  treats these fields as optional and omits absent values from `info`.
+- March 2026 changelog: Spotify reverted the February removal of Album and
+  Track `external_ids`. This gem does not call Album or Track endpoints and
+  does not map `external_ids`, so no code change is required for that reversal.
+- February 2025 redirect URI security changes: Spotify rejects `localhost`
+  redirect URIs and requires HTTPS except for explicit loopback IP literals.
+- Development Mode access changes: if `GET /me` returns `403` with a message
+  requiring Spotify Premium for the app owner, OAuth token exchange may still
+  be working; the Web API call is blocked by Spotify account/app policy, not by
+  this strategy's auth-hash mapping.
+
+References:
+
+- <https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide>
+- <https://developer.spotify.com/documentation/web-api/references/changes/february-2026>
+- <https://developer.spotify.com/documentation/web-api/references/changes/march-2026>
+- <https://developer.spotify.com/documentation/web-api/concepts/redirect_uri>
+- <https://developer.spotify.com/blog/2026-02-06-update-on-developer-access-and-platform-security>
 
 ## Development
 
