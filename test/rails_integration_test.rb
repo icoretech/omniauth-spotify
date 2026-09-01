@@ -131,6 +131,7 @@ class RailsIntegrationTest < Minitest::Test
       status: 200,
       headers: {"Content-Type" => "application/json"},
       body: {
+        account_id: "stable-account-id",
         id: "sampleuser",
         display_name: "Sample User",
         email: "sample@example.test",

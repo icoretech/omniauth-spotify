@@ -20,6 +20,7 @@ class OmniauthSpotifyTest < Minitest::Test
   def test_uid_info_and_extra_are_derived_from_raw_info
     strategy = build_strategy
     payload = {
+      "account_id" => "stable-account-id",
       "id" => "sampleuser",
       "display_name" => "Sample User",
       "email" => "sample@example.test",
@@ -54,6 +55,7 @@ class OmniauthSpotifyTest < Minitest::Test
   def test_info_handles_development_mode_payload_without_restricted_user_fields
     strategy = build_strategy
     payload = {
+      "account_id" => "stable-account-id",
       "id" => "1234567890",
       "display_name" => "1234567890",
       "external_urls" => {"spotify" => "https://open.spotify.com/user/1234567890"},
@@ -65,6 +67,7 @@ class OmniauthSpotifyTest < Minitest::Test
 
     strategy.instance_variable_set(:@raw_info, payload)
 
+    assert_equal "1234567890", strategy.uid
     assert_equal(
       {
         name: "1234567890",
